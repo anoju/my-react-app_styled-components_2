@@ -51,6 +51,7 @@ const InfoBox = styled.div`
     overflow-x: auto;
   }
 `;
+const { WeekPicker } = DatePicker;
 
 const CustomWeekPicker = () => {
   const [customWeekRange, setCustomWeekRange] = useState(null);
@@ -118,44 +119,22 @@ const CustomWeekPicker = () => {
 
     return (
       <div
-        className={cellClasses.join(" ")}
+        className={[
+          ...cellClasses,
+          isInDisplayRange ? "custom-week-hover" : "",
+          current.isSame(displayRange.start, "day")
+            ? "custom-week-hover-start"
+            : "",
+          current.isSame(displayRange.end, "day")
+            ? "custom-week-hover-end"
+            : "",
+        ].join(" ")}
         onMouseEnter={() => {
           const range = getWednesdayToTuesdayRange(current);
           setHoverWeekRange(range);
         }}
         onMouseLeave={() => {
           setHoverWeekRange(null);
-        }}
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "relative",
-          // 직접 스타일 적용 - 호버가 우선순위
-          backgroundColor: isInDisplayRange
-            ? hoverWeekRange
-              ? "#e6f7ff"
-              : "#1890ff"
-            : "transparent",
-          color: isInDisplayRange
-            ? hoverWeekRange
-              ? "#1890ff"
-              : "white"
-            : "inherit",
-          border: isInDisplayRange
-            ? "1px solid #1890ff"
-            : "1px solid transparent",
-          borderRadius: isInDisplayRange
-            ? current.isSame(displayRange.start, "day")
-              ? "6px 0 0 6px"
-              : current.isSame(displayRange.end, "day")
-                ? "0 6px 6px 0"
-                : "0"
-            : "0",
-          transition: "all 0.2s",
-          cursor: "pointer",
         }}
       >
         {current.date()}
@@ -189,6 +168,8 @@ const CustomWeekPicker = () => {
   return (
     <Container>
       <h3>커스텀 WeekPicker - 수요일~화요일 선택</h3>
+
+      <WeekPicker placeholder="주를 선택하세요" style={{ width: 200 }} />
 
       <InputContainer>
         <label>선택된 주 범위 (수요일 ~ 화요일):</label>

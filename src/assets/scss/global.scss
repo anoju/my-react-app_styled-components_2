@@ -45,3 +45,13 @@
     border-bottom-right-radius: 6px !important;
   }
 }
+.custom-week-hover {
+  background: #1677ff;
+  color: #fff;
+}
+.custom-week-hover-start {
+  border-radius: 6px 0 0 6px;
+}
+.custom-week-hover-end {
+  border-radius: 0 6px 6px 0;
+}
