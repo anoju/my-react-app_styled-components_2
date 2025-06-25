@@ -1,15 +1,23 @@
 .ant-picker-dropdown.custom-week-dropdown {
   .ant-picker-cell {
     padding: 0;
-    > div {
+    > .ant-picker-cell-inner {
+      display: block;
       padding: 6px 0;
+      height: 100%;
+      &::before {
+        width: 24px;
+        height: 24px;
+        top: 6px;
+        left: 6px;
+      }
     }
   }
 }
 .custom-week-hover,
 .custom-week-selected {
   color: #fff;
-  &:before {
+  &:after {
     content: "";
     display: block;
     width: 100%;
@@ -22,17 +30,18 @@
   }
   > span {
     position: relative;
+    z-index: 1;
   }
 }
 .custom-week-hover-start,
 .custom-week-selected-start {
-  &:before {
+  &:after {
     border-radius: 6px 0 0 6px;
   }
 }
 .custom-week-hover-end,
 .custom-week-selected-end {
-  &:before {
+  &:after {
     border-radius: 0 6px 6px 0;
   }
 }

@@ -1,34 +1,16 @@
 import React, { useState } from "react";
-import { DatePicker } from "antd";
+import { DatePicker, Segmented } from "antd";
 import { styled } from "styled-components";
 
 const Container = styled.div`
   padding: 20px;
 `;
 
-const InputContainer = styled.div`
+const SegmentedContainer = styled.div`
   margin-bottom: 20px;
 
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #333;
-  }
-
-  input {
-    width: 400px;
-    padding: 8px 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 6px;
-    font-size: 14px;
-    background-color: #fff;
-
-    &:focus {
-      border-color: #1890ff;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-    }
+  .ant-segmented {
+    background-color: #f5f5f5;
   }
 `;
 
@@ -52,27 +34,13 @@ const InfoBox = styled.div`
   }
 `;
 
-const { WeekPicker } = DatePicker;
+const { WeekPicker, MonthPicker } = DatePicker;
 
 const CustomWeekPicker = () => {
+  const [pickerType, setPickerType] = useState("주"); // 일, 주, 월
   const [customWeekRange, setCustomWeekRange] = useState(null);
   const [hoverWeekRange, setHoverWeekRange] = useState(null);
-  const [displayValue, setDisplayValue] = useState("");
-  const [pickerOpen, setPickerOpen] = useState(false);
-
-  // dropdown이 열릴 때 클래스 추가
-  // useEffect(() => {
-  //   if (pickerOpen) {
-  //     const timer = setTimeout(() => {
-  //       const dropdown = document.querySelector(".ant-picker-dropdown");
-  //       if (dropdown) {
-  //         dropdown.classList.add("custom-week-dropdown");
-  //       }
-  //     }, 100); // 작은 지연을 두어 dropdown이 생성된 후 클래스 추가
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [pickerOpen]);
+  const [selectedDate, setSelectedDate] = useState(null); // 일/월 선택용
 
   // 선택된 날짜가 속한 주의 수요일~화요일 범위를 계산하는 함수
   const getWednesdayToTuesdayRange = (selectedDate) => {
@@ -107,16 +75,16 @@ const CustomWeekPicker = () => {
     );
   };
 
-  // 날짜 셀 렌더링
+  // 날짜 셀 렌더링 (주 모드에서만 사용)
   const cellRender = (current, info) => {
-    if (info.type !== "date") return info.originNode;
+    if (info.type !== "date" || pickerType !== "주") return info.originNode;
 
     // 표시할 범위 결정 (호버가 우선, 없으면 선택된 범위)
     const displayRange = hoverWeekRange || customWeekRange;
     const isInDisplayRange =
       displayRange && isDateInRange(current, displayRange);
 
-    let cellClasses = [];
+    let cellClasses = ["ant-picker-cell-inner"];
 
     if (isInDisplayRange) {
       // 호버 중이면 호버 스타일, 아니면 선택 스타일
@@ -142,11 +110,15 @@ const CustomWeekPicker = () => {
       <div
         className={cellClasses.join(" ")}
         onMouseEnter={() => {
-          const range = getWednesdayToTuesdayRange(current);
-          setHoverWeekRange(range);
+          if (pickerType === "주") {
+            const range = getWednesdayToTuesdayRange(current);
+            setHoverWeekRange(range);
+          }
         }}
         onMouseLeave={() => {
-          setHoverWeekRange(null);
+          if (pickerType === "주") {
+            setHoverWeekRange(null);
+          }
         }}
       >
         <span>{current.date()}</span>
@@ -154,15 +126,19 @@ const CustomWeekPicker = () => {
     );
   };
 
-  const handleDateChange = (date) => {
+  // 일반 날짜 변경 핸들러 (일/월)
+  const handleNormalDateChange = (date, dateString) => {
+    setSelectedDate(date);
+
+    console.log(`선택된 ${pickerType}:`, dateString);
+  };
+
+  // 주 선택 변경 핸들러
+  const handleWeekDateChange = (date) => {
     if (date) {
       const range = getWednesdayToTuesdayRange(date);
       setCustomWeekRange(range);
       setHoverWeekRange(null);
-
-      // input에 표시될 값 설정
-      const displayText = `${range.start.format("YYYY-MM-DD")} ~ ${range.end.format("YYYY-MM-DD")}`;
-      setDisplayValue(displayText);
 
       console.log("선택된 커스텀 주 범위:", {
         start: range.start.format("YYYY-MM-DD (dddd)"),
@@ -171,95 +147,200 @@ const CustomWeekPicker = () => {
     } else {
       setCustomWeekRange(null);
       setHoverWeekRange(null);
-      setDisplayValue("");
     }
-
-    setPickerOpen(false); // 선택 후 달력 닫기
   };
+
+  // Segmented 변경 핸들러
+  const handleSegmentedChange = (value) => {
+    setPickerType(value);
+
+    // 선택 타입이 변경되면 모든 상태 초기화
+    setCustomWeekRange(null);
+    setHoverWeekRange(null);
+    setSelectedDate(null);
+  };
+
+  // DatePicker 렌더링
+  const renderDatePicker = () => {
+    const commonProps = {
+      style: { width: 350 },
+    };
+
+    switch (pickerType) {
+      case "일":
+        return (
+          <DatePicker
+            {...commonProps}
+            value={selectedDate}
+            onChange={handleNormalDateChange}
+            format="YYYY-MM-DD"
+            placeholder="날짜를 선택하세요"
+          />
+        );
+
+      case "주":
+        return (
+          <DatePicker
+            {...commonProps}
+            onChange={handleWeekDateChange}
+            value={customWeekRange ? customWeekRange.start : null}
+            cellRender={cellRender}
+            format={() => {
+              if (customWeekRange) {
+                return `${customWeekRange.start.format("YYYY-MM-DD")} ~ ${customWeekRange.end.format("YYYY-MM-DD")}`;
+              }
+              return "YYYY-MM-DD";
+            }}
+            inputReadOnly
+            classNames={{
+              popup: "custom-week-dropdown",
+            }}
+            placeholder="날짜를 선택하세요"
+            onPanelChange={() => {
+              if (!customWeekRange) {
+                setHoverWeekRange(null);
+              }
+            }}
+          />
+        );
+
+      case "월":
+        return (
+          <DatePicker
+            {...commonProps}
+            picker="month"
+            value={selectedDate}
+            onChange={handleNormalDateChange}
+            format="YYYY-MM"
+            placeholder="월을 선택하세요"
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // 정보 박스 데이터 반환
+  const getInfoBoxData = () => {
+    switch (pickerType) {
+      case "일":
+        return selectedDate
+          ? {
+              title: "선택된 날짜 정보",
+              data: {
+                date: selectedDate.format("YYYY-MM-DD"),
+                dayOfWeek: selectedDate.format("dddd"),
+                timestamp: selectedDate.valueOf(),
+              },
+            }
+          : null;
+
+      case "주": {
+        const range = customWeekRange || hoverWeekRange;
+        return range
+          ? {
+              title: `${customWeekRange ? "선택된" : "미리보기"} 커스텀 주 범위`,
+              data: {
+                startDate: range.start.format("YYYY-MM-DD"),
+                endDate: range.end.format("YYYY-MM-DD"),
+                startTimestamp: range.start.valueOf(),
+                endTimestamp: range.end.valueOf(),
+              },
+            }
+          : null;
+      }
+
+      case "월":
+        return selectedDate
+          ? {
+              title: "선택된 월 정보",
+              data: {
+                month: selectedDate.format("YYYY-MM"),
+                year: selectedDate.format("YYYY"),
+                monthName: selectedDate.format("MMMM"),
+                timestamp: selectedDate.valueOf(),
+              },
+            }
+          : null;
+
+      default:
+        return null;
+    }
+  };
+
+  const infoData = getInfoBoxData();
 
   return (
     <Container>
-      <h3>커스텀 WeekPicker - 수요일~화요일 선택</h3>
+      <h3>📅 다목적 DatePicker</h3>
 
-      <WeekPicker placeholder="주를 선택하세요" style={{ width: 200 }} />
-
-      <InputContainer>
-        <label>선택된 주 범위 (수요일 ~ 화요일):</label>
-        <input
-          type="text"
-          value={displayValue}
-          placeholder="달력에서 날짜를 선택하면 수요일~화요일 범위가 표시됩니다"
-          readOnly
-          onClick={() => setPickerOpen(true)}
-          style={{ cursor: "pointer" }}
+      <SegmentedContainer>
+        <label
+          style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}
+        >
+          선택 타입:
+        </label>
+        <Segmented
+          options={["일", "주", "월"]}
+          value={pickerType}
+          onChange={handleSegmentedChange}
+          size="large"
         />
-      </InputContainer>
+      </SegmentedContainer>
 
-      <DatePicker
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        onChange={handleDateChange}
-        value={customWeekRange ? customWeekRange.start : null}
-        placeholder="날짜를 선택하세요"
-        style={{ width: 350 }}
-        cellRender={cellRender}
-        format={() => displayValue || "YYYY-MM-DD"}
-        inputReadOnly
-        popupClassName="custom-week-dropdown"
-        onPanelChange={() => {
-          // 패널 변경 시 hover 상태 초기화
-          if (!customWeekRange) {
-            setHoverWeekRange(null);
-          }
-        }}
-      />
+      {renderDatePicker()}
 
-      {(customWeekRange || hoverWeekRange) && (
+      {infoData && (
         <InfoBox>
-          <h4>{customWeekRange ? "선택된" : "미리보기"} 커스텀 주 범위:</h4>
-          <p>
-            <strong>시작 (수요일):</strong>{" "}
-            {(customWeekRange || hoverWeekRange).start.format(
-              "YYYY년 MM월 DD일 (dddd)"
-            )}
-            <br />
-            <strong>종료 (화요일):</strong>{" "}
-            {(customWeekRange || hoverWeekRange).end.format(
-              "YYYY년 MM월 DD일 (dddd)"
-            )}
-          </p>
-
-          {customWeekRange && (
-            <>
-              <h4>API 전송용 데이터:</h4>
-              <pre>
-                {JSON.stringify(
-                  {
-                    startDate: customWeekRange.start.format("YYYY-MM-DD"),
-                    endDate: customWeekRange.end.format("YYYY-MM-DD"),
-                    startTimestamp: customWeekRange.start.valueOf(),
-                    endTimestamp: customWeekRange.end.valueOf(),
-                  },
-                  null,
-                  2
-                )}
-              </pre>
-            </>
+          <h4>{infoData.title}:</h4>
+          {pickerType === "주" && (customWeekRange || hoverWeekRange) && (
+            <p>
+              <strong>시작 (수요일):</strong>{" "}
+              {(customWeekRange || hoverWeekRange).start.format(
+                "YYYY년 MM월 DD일 (dddd)"
+              )}
+              <br />
+              <strong>종료 (화요일):</strong>{" "}
+              {(customWeekRange || hoverWeekRange).end.format(
+                "YYYY년 MM월 DD일 (dddd)"
+              )}
+            </p>
           )}
+
+          <h4>API 전송용 데이터:</h4>
+          <pre>{JSON.stringify(infoData.data, null, 2)}</pre>
         </InfoBox>
       )}
 
       <div style={{ marginTop: "20px", fontSize: "14px", color: "#666" }}>
         <p>
-          💡 <strong>기능 설명:</strong>
-          <br />• <strong>마우스 오버:</strong> 날짜에 마우스를 올리면 해당 주의
-          수요일~화요일 범위가 미리보기됩니다
-          <br />• <strong>클릭 선택:</strong> 날짜를 클릭하면 수요일~화요일
-          범위가 확정 선택됩니다
-          <br />• <strong>입력 필드:</strong> 선택된 범위가 "YYYY-MM-DD ~
-          YYYY-MM-DD" 형식으로 표시됩니다
-          <br />• <strong>시각적 피드백:</strong> 선택된 범위는 파란색으로
-          하이라이트됩니다
+          💡 <strong>사용법:</strong>
+          <br />
+          {pickerType === "일" && (
+            <>
+              • <strong>날짜 선택:</strong> 달력에서 원하는 날짜를 클릭하세요
+              <br />• <strong>형식:</strong> YYYY-MM-DD 형식으로 표시됩니다
+            </>
+          )}
+          {pickerType === "주" && (
+            <>
+              • <strong>마우스 오버:</strong> 날짜에 마우스를 올리면 해당 주의
+              수요일~화요일 범위가 미리보기됩니다
+              <br />• <strong>클릭 선택:</strong> 날짜를 클릭하면 수요일~화요일
+              범위가 확정 선택됩니다
+              <br />• <strong>입력 필드:</strong> 선택된 범위가 "YYYY-MM-DD ~
+              YYYY-MM-DD" 형식으로 표시됩니다
+              <br />• <strong>시각적 피드백:</strong> 선택된 범위는 파란색으로
+              하이라이트됩니다
+            </>
+          )}
+          {pickerType === "월" && (
+            <>
+              • <strong>월 선택:</strong> 달력에서 원하는 월을 클릭하세요
+              <br />• <strong>형식:</strong> YYYY-MM 형식으로 표시됩니다
+            </>
+          )}
         </p>
       </div>
     </Container>
