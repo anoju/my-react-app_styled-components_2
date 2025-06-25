@@ -1,7 +1,8 @@
 .ant-picker-dropdown.custom-week-dropdown {
   .ant-picker-cell {
     padding: 0;
-    > .ant-picker-cell-inner {
+    // td안 (이벤트 걸린) div를 최대한 크게
+    .ant-picker-cell-inner {
       display: block;
       padding: 6px 0;
       height: 100%;
@@ -12,36 +13,49 @@
         left: 6px;
       }
     }
+
+    // 마우스 호버효과 초기화
+    &:hover {
+      .ant-picker-cell-inner {
+        background-color: transparent !important;
+      }
+    }
   }
-}
-.custom-week-hover,
-.custom-week-selected {
-  color: #fff;
-  &:after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 24px;
-    position: absolute;
-    top: 50%;
-    left: 0;
-    background: #1677ff;
-    transform: translateY(-50%);
+  .ant-picker-cell-selected:not(.ant-picker-cell-disabled)
+    .ant-picker-cell-inner {
+    color: inherit;
+    background-color: inherit;
   }
-  > span {
-    position: relative;
-    z-index: 1;
+
+  .custom-week-hover,
+  .custom-week-selected {
+    color: #fff !important;
+    &:after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 24px;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      background: #1677ff;
+      transform: translateY(-50%);
+    }
+    > span {
+      position: relative;
+      z-index: 1;
+    }
   }
-}
-.custom-week-hover-start,
-.custom-week-selected-start {
-  &:after {
-    border-radius: 6px 0 0 6px;
+  .custom-week-hover-start,
+  .custom-week-selected-start {
+    &:after {
+      border-radius: 6px 0 0 6px;
+    }
   }
-}
-.custom-week-hover-end,
-.custom-week-selected-end {
-  &:after {
-    border-radius: 0 6px 6px 0;
+  .custom-week-hover-end,
+  .custom-week-selected-end {
+    &:after {
+      border-radius: 0 6px 6px 0;
+    }
   }
 }
