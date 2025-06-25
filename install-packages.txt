@@ -1,0 +1,8 @@
+다음 명령어를 실행하여 필요한 패키지들을 설치하세요:
+
+npm install react-router-dom antd dayjs
+
+패키지 설명:
+- react-router-dom: React 라우팅을 위한 패키지
+- antd: Ant Design UI 라이브러리 (WeekPicker 사용을 위해)
+- dayjs: 날짜 처리 라이브러리
