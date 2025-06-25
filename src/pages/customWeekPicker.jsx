@@ -84,7 +84,7 @@ const CustomWeekPicker = () => {
     const isInDisplayRange =
       displayRange && isDateInRange(current, displayRange);
 
-    let cellClasses = ["ant-picker-cell-inner"];
+    const cellClasses = ["ant-picker-cell-inner"];
 
     if (isInDisplayRange) {
       // 호버 중이면 호버 스타일, 아니면 선택 스타일
