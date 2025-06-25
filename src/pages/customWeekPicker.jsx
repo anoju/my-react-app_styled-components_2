@@ -51,6 +51,7 @@ const InfoBox = styled.div`
     overflow-x: auto;
   }
 `;
+
 const { WeekPicker } = DatePicker;
 
 const CustomWeekPicker = () => {
@@ -58,6 +59,20 @@ const CustomWeekPicker = () => {
   const [hoverWeekRange, setHoverWeekRange] = useState(null);
   const [displayValue, setDisplayValue] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // dropdown이 열릴 때 클래스 추가
+  // useEffect(() => {
+  //   if (pickerOpen) {
+  //     const timer = setTimeout(() => {
+  //       const dropdown = document.querySelector(".ant-picker-dropdown");
+  //       if (dropdown) {
+  //         dropdown.classList.add("custom-week-dropdown");
+  //       }
+  //     }, 100); // 작은 지연을 두어 dropdown이 생성된 후 클래스 추가
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [pickerOpen]);
 
   // 선택된 날짜가 속한 주의 수요일~화요일 범위를 계산하는 함수
   const getWednesdayToTuesdayRange = (selectedDate) => {
@@ -110,25 +125,22 @@ const CustomWeekPicker = () => {
       );
 
       if (current.isSame(displayRange.start, "day")) {
-        cellClasses.push("custom-week-start");
+        cellClasses.push(
+          hoverWeekRange
+            ? "custom-week-hover-start"
+            : "custom-week-selected-start"
+        );
       }
       if (current.isSame(displayRange.end, "day")) {
-        cellClasses.push("custom-week-end");
+        cellClasses.push(
+          hoverWeekRange ? "custom-week-hover-end" : "custom-week-selected-end"
+        );
       }
     }
 
     return (
       <div
-        className={[
-          ...cellClasses,
-          isInDisplayRange ? "custom-week-hover" : "",
-          current.isSame(displayRange.start, "day")
-            ? "custom-week-hover-start"
-            : "",
-          current.isSame(displayRange.end, "day")
-            ? "custom-week-hover-end"
-            : "",
-        ].join(" ")}
+        className={cellClasses.join(" ")}
         onMouseEnter={() => {
           const range = getWednesdayToTuesdayRange(current);
           setHoverWeekRange(range);
@@ -137,7 +149,7 @@ const CustomWeekPicker = () => {
           setHoverWeekRange(null);
         }}
       >
-        {current.date()}
+        <span>{current.date()}</span>
       </div>
     );
   };
@@ -193,6 +205,7 @@ const CustomWeekPicker = () => {
         cellRender={cellRender}
         format={() => displayValue || "YYYY-MM-DD"}
         inputReadOnly
+        popupClassName="custom-week-dropdown"
         onPanelChange={() => {
           // 패널 변경 시 hover 상태 초기화
           if (!customWeekRange) {

@@ -1,57 +1,38 @@
-.custom-week-calendar {
-  .ant-picker-content {
-    th,
-    td {
-      position: relative;
+.ant-picker-dropdown.custom-week-dropdown {
+  .ant-picker-cell {
+    padding: 0;
+    > div {
+      padding: 6px 0;
     }
-  }
-
-  /* 커스텀 주 범위 하이라이트 */
-  .custom-week-hover,
-  .custom-week-selected {
-    position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      right: 2px;
-      bottom: 2px;
-      background-color: #e6f7ff;
-      border: 1px solid #1890ff;
-      border-radius: 4px;
-      z-index: 1;
-    }
-  }
-
-  .custom-week-selected::before {
-    background-color: #1890ff;
-  }
-
-  .custom-week-selected .ant-picker-cell-inner {
-    color: white !important;
-    position: relative;
-    z-index: 2;
-  }
-
-  .custom-week-start::before {
-    border-top-left-radius: 6px !important;
-    border-bottom-left-radius: 6px !important;
-  }
-
-  .custom-week-end::before {
-    border-top-right-radius: 6px !important;
-    border-bottom-right-radius: 6px !important;
   }
 }
-.custom-week-hover {
-  background: #1677ff;
+.custom-week-hover,
+.custom-week-selected {
   color: #fff;
+  &:before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 24px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    background: #1677ff;
+    transform: translateY(-50%);
+  }
+  > span {
+    position: relative;
+  }
 }
-.custom-week-hover-start {
-  border-radius: 6px 0 0 6px;
+.custom-week-hover-start,
+.custom-week-selected-start {
+  &:before {
+    border-radius: 6px 0 0 6px;
+  }
 }
-.custom-week-hover-end {
-  border-radius: 0 6px 6px 0;
+.custom-week-hover-end,
+.custom-week-selected-end {
+  &:before {
+    border-radius: 0 6px 6px 0;
+  }
 }
