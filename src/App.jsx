@@ -1,8 +1,9 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { styled } from 'styled-components';
-import GlobalStyle from './styled/globalStyled.js';
-import AutoRouter from './utils/AutoRouter';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { styled } from "styled-components";
+import GlobalStyle from "./styled/globalStyled.js";
+import AutoRouter from "./utils/AutoRouter";
+import "./assets/scss/global.scss";
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -17,14 +18,14 @@ const Header = styled.header`
   margin-bottom: 2rem;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
   h1 {
     margin: 0;
     font-size: 2rem;
     font-weight: 600;
   }
-  
+
   p {
     margin: 0.5rem 0 0 0;
     opacity: 0.9;
@@ -39,15 +40,15 @@ const DebugInfo = styled.div`
   padding: 1rem;
   margin-bottom: 1rem;
   font-size: 14px;
-  
+
   p {
     margin: 0.5rem 0;
   }
 `;
 
 function App() {
-  console.log('App 컴포넌트가 렌더링되었습니다.');
-  
+  console.log("App 컴포넌트가 렌더링되었습니다.");
+
   return (
     <Router>
       <GlobalStyle />
@@ -56,14 +57,19 @@ function App() {
           <h1>🚀 React Auto Router</h1>
           <p>pages 폴더 기반 자동 라우팅 시스템</p>
         </Header>
-        
+
         <DebugInfo>
-          <p><strong>디버깅 정보:</strong></p>
+          <p>
+            <strong>디버깅 정보:</strong>
+          </p>
           <p>• 현재 URL: {window.location.pathname}</p>
           <p>• 라우터 상태: 정상 작동중</p>
-          <p>• 페이지 전환이 안 되면 개발자 도구(F12) → Console 탭에서 에러를 확인하세요</p>
+          <p>
+            • 페이지 전환이 안 되면 개발자 도구(F12) → Console 탭에서 에러를
+            확인하세요
+          </p>
         </DebugInfo>
-        
+
         <AutoRouter />
       </AppContainer>
     </Router>

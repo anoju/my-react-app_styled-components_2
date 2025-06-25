@@ -4,54 +4,6 @@ import { styled } from "styled-components";
 
 const Container = styled.div`
   padding: 20px;
-
-  .custom-week-calendar {
-    .ant-picker-content {
-      th,
-      td {
-        position: relative;
-      }
-    }
-
-    /* 커스텀 주 범위 하이라이트 */
-    .custom-week-hover,
-    .custom-week-selected {
-      position: relative;
-
-      &::before {
-        content: "";
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        right: 2px;
-        bottom: 2px;
-        background-color: #e6f7ff;
-        border: 1px solid #1890ff;
-        border-radius: 4px;
-        z-index: 1;
-      }
-    }
-
-    .custom-week-selected::before {
-      background-color: #1890ff;
-    }
-
-    .custom-week-selected .ant-picker-cell-inner {
-      color: white !important;
-      position: relative;
-      z-index: 2;
-    }
-
-    .custom-week-start::before {
-      border-top-left-radius: 6px !important;
-      border-bottom-left-radius: 6px !important;
-    }
-
-    .custom-week-end::before {
-      border-top-right-radius: 6px !important;
-      border-bottom-right-radius: 6px !important;
-    }
-  }
 `;
 
 const InputContainer = styled.div`
@@ -69,7 +21,7 @@ const InputContainer = styled.div`
     padding: 8px 12px;
     border: 1px solid #d9d9d9;
     border-radius: 6px;
-    fontsize: 14px;
+    font-size: 14px;
     background-color: #fff;
 
     &:focus {
@@ -143,35 +95,67 @@ const CustomWeekPicker = () => {
   const cellRender = (current, info) => {
     if (info.type !== "date") return info.originNode;
 
-    let className = "";
-    const activeRange = customWeekRange || hoverWeekRange;
+    // 표시할 범위 결정 (호버가 우선, 없으면 선택된 범위)
+    const displayRange = hoverWeekRange || customWeekRange;
+    const isInDisplayRange =
+      displayRange && isDateInRange(current, displayRange);
 
-    if (activeRange && isDateInRange(current, activeRange)) {
-      className += customWeekRange
-        ? " custom-week-selected"
-        : " custom-week-hover";
+    let cellClasses = [];
 
-      if (current.isSame(activeRange.start, "day")) {
-        className += " custom-week-start";
+    if (isInDisplayRange) {
+      // 호버 중이면 호버 스타일, 아니면 선택 스타일
+      cellClasses.push(
+        hoverWeekRange ? "custom-week-hover" : "custom-week-selected"
+      );
+
+      if (current.isSame(displayRange.start, "day")) {
+        cellClasses.push("custom-week-start");
       }
-      if (current.isSame(activeRange.end, "day")) {
-        className += " custom-week-end";
+      if (current.isSame(displayRange.end, "day")) {
+        cellClasses.push("custom-week-end");
       }
     }
 
     return (
       <div
-        className={`ant-picker-cell-inner${className}`}
+        className={cellClasses.join(" ")}
         onMouseEnter={() => {
-          if (!customWeekRange) {
-            const range = getWednesdayToTuesdayRange(current);
-            setHoverWeekRange(range);
-          }
+          const range = getWednesdayToTuesdayRange(current);
+          setHoverWeekRange(range);
         }}
         onMouseLeave={() => {
-          if (!customWeekRange) {
-            setHoverWeekRange(null);
-          }
+          setHoverWeekRange(null);
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          // 직접 스타일 적용 - 호버가 우선순위
+          backgroundColor: isInDisplayRange
+            ? hoverWeekRange
+              ? "#e6f7ff"
+              : "#1890ff"
+            : "transparent",
+          color: isInDisplayRange
+            ? hoverWeekRange
+              ? "#1890ff"
+              : "white"
+            : "inherit",
+          border: isInDisplayRange
+            ? "1px solid #1890ff"
+            : "1px solid transparent",
+          borderRadius: isInDisplayRange
+            ? current.isSame(displayRange.start, "day")
+              ? "6px 0 0 6px"
+              : current.isSame(displayRange.end, "day")
+                ? "0 6px 6px 0"
+                : "0"
+            : "0",
+          transition: "all 0.2s",
+          cursor: "pointer",
         }}
       >
         {current.date()}
@@ -222,11 +206,12 @@ const CustomWeekPicker = () => {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         onChange={handleDateChange}
+        value={customWeekRange ? customWeekRange.start : null}
         placeholder="날짜를 선택하세요"
-        style={{ width: 250 }}
-        className="custom-week-calendar"
+        style={{ width: 350 }}
         cellRender={cellRender}
-        format="YYYY-MM-DD"
+        format={() => displayValue || "YYYY-MM-DD"}
+        inputReadOnly
         onPanelChange={() => {
           // 패널 변경 시 hover 상태 초기화
           if (!customWeekRange) {

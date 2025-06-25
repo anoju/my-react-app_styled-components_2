@@ -1,0 +1,47 @@
+.custom-week-calendar {
+  .ant-picker-content {
+    th,
+    td {
+      position: relative;
+    }
+  }
+
+  /* 커스텀 주 범위 하이라이트 */
+  .custom-week-hover,
+  .custom-week-selected {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      background-color: #e6f7ff;
+      border: 1px solid #1890ff;
+      border-radius: 4px;
+      z-index: 1;
+    }
+  }
+
+  .custom-week-selected::before {
+    background-color: #1890ff;
+  }
+
+  .custom-week-selected .ant-picker-cell-inner {
+    color: white !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .custom-week-start::before {
+    border-top-left-radius: 6px !important;
+    border-bottom-left-radius: 6px !important;
+  }
+
+  .custom-week-end::before {
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+  }
+}
